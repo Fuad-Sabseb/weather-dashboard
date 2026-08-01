@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Todo App</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <section id="auth-card" class="auth-card">
+      <div class="auth-header">
+        <div>
+          <p class="label">Account</p>
+          <h1 id="auth-title">Sign in to TaskFlow</h1>
+          <p class="hero-copy">Save your tasks by signing in or creating a new account.</p>
+        </div>
+      </div>
+
+      <div id="auth-message" class="auth-message" aria-live="polite"></div>
+
+      <form id="login-form" class="auth-form" autocomplete="off">
+        <label class="sr-only" for="login-username">Username</label>
+        <input id="login-username" name="username" type="text" placeholder="Username" required />
+        <label class="sr-only" for="login-password">Password</label>
+        <input id="login-password" name="password" type="password" placeholder="Password" required />
+        <button type="submit">Sign in</button>
+      </form>
+
+      <form id="register-form" class="auth-form hidden" autocomplete="off">
+        <label class="sr-only" for="register-username">Username</label>
+        <input id="register-username" name="username" type="text" placeholder="Choose username" required />
+        <label class="sr-only" for="register-password">Password</label>
+        <input id="register-password" name="password" type="password" placeholder="Create password" required />
+        <label class="sr-only" for="register-confirm">Confirm password</label>
+        <input id="register-confirm" name="confirm" type="password" placeholder="Confirm password" required />
+        <button type="submit">Create account</button>
+      </form>
+
+      <div class="auth-switcher">
+        <p id="auth-switch-text">New here?</p>
+        <button id="show-register" type="button" class="text-button secondary">Create account</button>
+        <button id="show-login" type="button" class="text-button secondary hidden">Sign in instead</button>
+      </div>
+    </section>
+
+    <section id="todo-card" class="todo-card hidden">
+      <header class="todo-hero">
+        <div>
+          <div class="todo-top-row">
+            <p class="label">Routines</p>
+            <button id="logout-button" class="text-button secondary">Logout</button>
+          </div>
+          <h1>Task List</h1>
+          <p class="hero-copy">Task manager with smart filters, drag reorder, inline edit, and automatic persistence.</p>
+        </div>
+        <div class="hero-meta">
+          <span class="hero-badge" id="user-greeting">Guest</span>
+          <p class="hero-note">All tasks save instantly to your browser.</p>
+        </div>
+      </header>
+
+      <div class="summary-grid">
+        <article class="summary-card">
+          <span>Total tasks</span>
+          <strong id="summary-total">0</strong>
+        </article>
+        <article class="summary-card">
+          <span>Active</span>
+          <strong id="summary-active">0</strong>
+        </article>
+        <article class="summary-card">
+          <span>Completed</span>
+          <strong id="summary-completed">0</strong>
+        </article>
+      </div>
+
+      <form id="todo-form" class="todo-form" autocomplete="off">
+        <label class="sr-only" for="todo-input">Create new task</label>
+        <input id="todo-input" name="todo" type="text" placeholder="Add a new task" required />
+        <button type="submit">Add task</button>
+      </form>
+
+      <div class="toolbar">
+        <div class="filter-bar" role="tablist" aria-label="Task filter">
+          <button type="button" class="filter-button active" data-filter="all">All</button>
+          <button type="button" class="filter-button" data-filter="active">Active</button>
+          <button type="button" class="filter-button" data-filter="completed">Completed</button>
+        </div>
+        <button id="mark-all" class="text-button secondary">Mark all done</button>
+      </div>
+
+      <div class="list-wrapper">
+        <ul id="todo-list" class="todo-list" aria-live="polite"></ul>
+      </div>
+
+      <div class="footer-row">
+        <span id="todo-count">0 total · 0 active · 0 completed</span>
+        <button id="clear-completed" class="text-button secondary">Clear completed</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
