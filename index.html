@@ -1,106 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Todo App</title>
-  <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard · Open-Meteo</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <main class="app-shell">
-    <section id="auth-card" class="auth-card">
-      <div class="auth-header">
-        <div>
-          <p class="label">Account</p>
-          <h1 id="auth-title">Sign in to TaskFlow</h1>
-          <p class="hero-copy">Save your tasks by signing in or creating a new account.</p>
+
+<body class="bg-gradient-to-br from-slate-800 to-slate-900 min-h-screen flex items-center justify-center p-4 font-sans antialiased">
+
+    <div class="w-full max-w-4xl bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl p-6 md:p-8 border border-white/20 text-white transition-all duration-300">
+
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+
+            <h1 class="text-3xl font-extralight tracking-wide flex items-center gap-2">
+                <i class="fas fa-cloud-sun text-amber-300"></i>
+                <span class="font-medium">weather</span>board
+            </h1>
+
+            <div class="flex w-full sm:w-auto gap-2">
+
+                <input
+                    id="searchInput"
+                    type="text"
+                    placeholder="Search city… e.g. London"
+                    class="flex-1 sm:w-56 px-4 py-2 rounded-full bg-white/20 border border-white/30 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-amber-300/70 transition"
+                    autofocus>
+
+                <button
+                    id="searchBtn"
+                    class="px-5 py-2 bg-amber-400 hover:bg-amber-300 text-slate-900 font-medium rounded-full transition shadow-lg shadow-amber-400/30 flex items-center gap-2">
+
+                    <i class="fas fa-magnifying-glass"></i>
+                    Go
+
+                </button>
+
+            </div>
+
         </div>
-      </div>
 
-      <div id="auth-message" class="auth-message" aria-live="polite"></div>
+        <!-- Main Container -->
+        <div id="appContainer">
 
-      <form id="login-form" class="auth-form" autocomplete="off">
-        <label class="sr-only" for="login-username">Username</label>
-        <input id="login-username" name="username" type="text" placeholder="Username" required />
-        <label class="sr-only" for="login-password">Password</label>
-        <input id="login-password" name="password" type="password" placeholder="Password" required />
-        <button type="submit">Sign in</button>
-      </form>
+            <!-- Idle State -->
+            <div id="idleState" class="text-center py-16 px-4">
 
-      <form id="register-form" class="auth-form hidden" autocomplete="off">
-        <label class="sr-only" for="register-username">Username</label>
-        <input id="register-username" name="username" type="text" placeholder="Choose username" required />
-        <label class="sr-only" for="register-password">Password</label>
-        <input id="register-password" name="password" type="password" placeholder="Create password" required />
-        <label class="sr-only" for="register-confirm">Confirm password</label>
-        <input id="register-confirm" name="confirm" type="password" placeholder="Confirm password" required />
-        <button type="submit">Create account</button>
-      </form>
+                <i class="fas fa-map-location-dot text-6xl text-white/30 mb-4"></i>
 
-      <div class="auth-switcher">
-        <p id="auth-switch-text">New here?</p>
-        <button id="show-register" type="button" class="text-button secondary">Create account</button>
-        <button id="show-login" type="button" class="text-button secondary hidden">Sign in instead</button>
-      </div>
-    </section>
+                <p class="text-xl text-white/60">
+                    Search for a city to see the weather
+                </p>
 
-    <section id="todo-card" class="todo-card hidden">
-      <header class="todo-hero">
-        <div>
-          <div class="todo-top-row">
-            <p class="label">Routines</p>
-            <button id="logout-button" class="text-button secondary">Logout</button>
-          </div>
-          <h1>Task List</h1>
-          <p class="hero-copy">Task manager with smart filters, drag reorder, inline edit, and automatic persistence.</p>
+                <p class="text-sm text-white/40 mt-2">
+                    Powered by Open-Meteo · free & no API key
+                </p>
+
+            </div>
+
+            <!-- Loading -->
+            <div id="loadingState" class="text-center py-16 hidden">
+
+                <i class="fas fa-spinner fa-spin text-5xl text-amber-300 mb-4"></i>
+
+                <p class="text-xl text-white/70">
+                    Loading forecast…
+                </p>
+
+            </div>
+
+            <!-- Error -->
+            <div id="errorState" class="text-center py-16 hidden">
+
+                <i class="fas fa-circle-exclamation text-5xl text-rose-400 mb-4"></i>
+
+                <p id="errorMessage" class="text-xl text-rose-200">
+                    Something went wrong
+                </p>
+
+                <p class="text-sm text-white/50 mt-2">
+                    Please try a different city
+                </p>
+
+            </div>
+
+            <!-- Weather Display -->
+            <div id="weatherDisplay" class="hidden">
+
+                <!-- Today -->
+                <div class="bg-white/10 rounded-2xl p-5 mb-6 backdrop-blur-sm border border-white/10">
+
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+
+                        <div>
+
+                            <h2 id="cityName" class="text-3xl font-semibold">
+                                City
+                            </h2>
+
+                            <p id="currentDate" class="text-white/60 text-sm mt-1">
+                                Today
+                            </p>
+
+                            <div class="flex items-center gap-3 mt-2">
+
+                                <span id="currentTemp" class="text-5xl font-light">
+                                    --°C
+                                </span>
+
+                                <span id="weatherDescription"
+                                    class="text-lg bg-white/20 px-3 py-1 rounded-full">
+                                    --
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="mt-3 md:mt-0 flex items-center gap-4 text-sm">
+
+                            <div>
+                                <i class="fas fa-droplet text-cyan-300 mr-1"></i>
+                                <span id="humidity">--</span>%
+                            </div>
+
+                            <div>
+                                <i class="fas fa-wind text-sky-300 mr-1"></i>
+                                <span id="windSpeed">--</span> km/h
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Forecast -->
+                <h3 class="text-xl font-light mb-3 flex items-center gap-2">
+
+                    <i class="fas fa-calendar-week text-amber-300"></i>
+
+                    5-day Forecast
+
+                </h3>
+
+                <div id="forecastGrid"
+                    class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+
+                    <!-- Generated by JavaScript -->
+
+                </div>
+
+            </div>
+
         </div>
-        <div class="hero-meta">
-          <span class="hero-badge" id="user-greeting">Guest</span>
-          <p class="hero-note">All tasks save instantly to your browser.</p>
+
+        <!-- Footer -->
+        <div class="text-center text-white/30 text-xs mt-6 border-t border-white/10 pt-4">
+
+            <i class="fas fa-code"></i>
+
+            ES Modules · Async/Await · Open-Meteo
+
         </div>
-      </header>
 
-      <div class="summary-grid">
-        <article class="summary-card">
-          <span>Total tasks</span>
-          <strong id="summary-total">0</strong>
-        </article>
-        <article class="summary-card">
-          <span>Active</span>
-          <strong id="summary-active">0</strong>
-        </article>
-        <article class="summary-card">
-          <span>Completed</span>
-          <strong id="summary-completed">0</strong>
-        </article>
-      </div>
+    </div>
 
-      <form id="todo-form" class="todo-form" autocomplete="off">
-        <label class="sr-only" for="todo-input">Create new task</label>
-        <input id="todo-input" name="todo" type="text" placeholder="Add a new task" required />
-        <button type="submit">Add task</button>
-      </form>
+    <!-- JavaScript Files -->
+    <script src="js/api.js"></script>
+<script src="js/render.js"></script>
+<script src="js/app.js"></script>
 
-      <div class="toolbar">
-        <div class="filter-bar" role="tablist" aria-label="Task filter">
-          <button type="button" class="filter-button active" data-filter="all">All</button>
-          <button type="button" class="filter-button" data-filter="active">Active</button>
-          <button type="button" class="filter-button" data-filter="completed">Completed</button>
-        </div>
-        <button id="mark-all" class="text-button secondary">Mark all done</button>
-      </div>
-
-      <div class="list-wrapper">
-        <ul id="todo-list" class="todo-list" aria-live="polite"></ul>
-      </div>
-
-      <div class="footer-row">
-        <span id="todo-count">0 total · 0 active · 0 completed</span>
-        <button id="clear-completed" class="text-button secondary">Clear completed</button>
-      </div>
-    </section>
-  </main>
-
-  <script src="script.js"></script>
 </body>
 </html>
