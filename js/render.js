@@ -10,32 +10,32 @@
  */
 function getWeatherInfo(code) {
     const map = {
-        0: { desc: "Clear sky", icon: "fa-sun" },
-        1: { desc: "Mainly clear", icon: "fa-cloud-sun" },
+        0: { desc: "Clear", icon: "fa-sun" },
+        1: { desc: "Mostly clear", icon: "fa-cloud-sun" },
         2: { desc: "Partly cloudy", icon: "fa-cloud-sun" },
-        3: { desc: "Overcast", icon: "fa-cloud" },
-        45: { desc: "Fog", icon: "fa-smog" },
-        48: { desc: "Depositing rime fog", icon: "fa-smog" },
+        3: { desc: "Cloudy", icon: "fa-cloud" },
+        45: { desc: "Foggy", icon: "fa-smog" },
+        48: { desc: "Rime fog", icon: "fa-smog" },
         51: { desc: "Light drizzle", icon: "fa-cloud-rain" },
-        53: { desc: "Moderate drizzle", icon: "fa-cloud-rain" },
-        55: { desc: "Dense drizzle", icon: "fa-cloud-rain" },
-        61: { desc: "Slight rain", icon: "fa-cloud-rain" },
-        63: { desc: "Moderate rain", icon: "fa-cloud-showers-heavy" },
+        53: { desc: "Drizzle", icon: "fa-cloud-rain" },
+        55: { desc: "Heavy drizzle", icon: "fa-cloud-rain" },
+        61: { desc: "Light rain", icon: "fa-cloud-rain" },
+        63: { desc: "Rain", icon: "fa-cloud-showers-heavy" },
         65: { desc: "Heavy rain", icon: "fa-cloud-showers-heavy" },
-        71: { desc: "Slight snow", icon: "fa-snowflake" },
-        73: { desc: "Moderate snow", icon: "fa-snowflake" },
+        71: { desc: "Light snow", icon: "fa-snowflake" },
+        73: { desc: "Snow", icon: "fa-snowflake" },
         75: { desc: "Heavy snow", icon: "fa-snowflake" },
-        80: { desc: "Rain showers", icon: "fa-cloud-rain" },
-        81: { desc: "Moderate showers", icon: "fa-cloud-showers-heavy" },
-        82: { desc: "Violent showers", icon: "fa-cloud-showers-heavy" },
-        95: { desc: "Thunderstorm", icon: "fa-cloud-bolt" },
-        96: { desc: "Thunderstorm with hail", icon: "fa-cloud-bolt" },
-        99: { desc: "Thunderstorm with heavy hail", icon: "fa-cloud-bolt" }
+        80: { desc: "Showers", icon: "fa-cloud-rain" },
+        81: { desc: "Heavy showers", icon: "fa-cloud-showers-heavy" },
+        82: { desc: "Extreme showers", icon: "fa-cloud-showers-heavy" },
+        95: { desc: "Storm", icon: "fa-cloud-bolt" },
+        96: { desc: "Storm with hail", icon: "fa-cloud-bolt" },
+        99: { desc: "Severe storm", icon: "fa-cloud-bolt" }
     };
 
     return map[code] || {
-        desc: "Unknown",
-        icon: "fa-question"
+        desc: "N/A",
+        icon: "fa-circle-question"
     };
 }
 
@@ -53,26 +53,32 @@ function renderWeather(data, cityName, country) {
 
     if (cityEl) {
         cityEl.textContent =
-            `${cityName}${country ? ", " + country : ""}`;
+            country ? `${cityName}, ${country}` : cityName;
     }
 
     // Current Date
     const dateEl = document.getElementById("currentDate");
 
     if (dateEl) {
-        dateEl.textContent = today.toLocaleDateString("en-US", {
+        dateEl.textContent = today.toLocaleDateString(undefined, {
             weekday: "long",
-            month: "long",
+            month: "short",
             day: "numeric"
         });
     }
 
-    // Temperature
+    // Temperature (now supports Fahrenheit toggle)
     const tempEl = document.getElementById("currentTemp");
+    const useFahrenheit = localStorage.getItem("unit") === "F";
 
     if (tempEl) {
+        const tempC = current.temperature_2m;
+        const displayTemp = useFahrenheit
+            ? Math.round((tempC * 9) / 5 + 32)
+            : Math.round(tempC);
+
         tempEl.textContent =
-            Math.round(current.temperature_2m) + "°C";
+            `${displayTemp}°${useFahrenheit ? "F" : "C"}`;
     }
 
     // Weather Description
@@ -92,7 +98,7 @@ function renderWeather(data, cityName, country) {
 
     if (humidityEl) {
         humidityEl.textContent =
-            current.relative_humidity_2m ?? "--";
+            `${current.relative_humidity_2m ?? "--"}%`;
     }
 
     // Wind Speed
@@ -101,7 +107,7 @@ function renderWeather(data, cityName, country) {
 
     if (windEl) {
         windEl.textContent =
-            current.wind_speed_10m ?? "--";
+            `${current.wind_speed_10m ?? "--"} km/h`;
     }
 
     // Forecast
@@ -112,16 +118,16 @@ function renderWeather(data, cityName, country) {
 
     forecastGrid.innerHTML = "";
 
-    // Skip today and show next five days
-    for (let i = 1; i <= 5; i++) {
+    // Skip today and show next seven days
+    for (let i = 1; i <= 7; i++) {
 
         if (i >= daily.time.length) break;
 
         const date = new Date(daily.time[i]);
 
         const dayName =
-            date.toLocaleDateString("en-US", {
-                weekday: "short"
+            date.toLocaleDateString(undefined, {
+                weekday: "long"
             });
 
         const max =
@@ -137,24 +143,20 @@ function renderWeather(data, cityName, country) {
             document.createElement("div");
 
         card.className =
-            "bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/10 hover:bg-white/20 transition";
+            "bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/20 hover:bg-white/30 transition cursor-pointer";
 
         card.innerHTML = `
-            <p class="text-sm font-medium text-white/70">
+            <p class="text-sm font-semibold text-white/80">
                 ${dayName}
             </p>
 
-            <i class="fas ${info.icon} text-2xl text-amber-300 my-1"></i>
+            <i class="fas ${info.icon} text-3xl text-yellow-300 my-2"></i>
 
-            <p class="text-sm font-semibold">
-                ${max}°
+            <p class="text-base font-bold">
+                ${max}° / ${min}°
             </p>
 
-            <p class="text-xs text-white/50">
-                ${min}°
-            </p>
-
-            <p class="text-[10px] text-white/40 truncate">
+            <p class="text-xs text-white/50 truncate">
                 ${info.desc}
             </p>
         `;
@@ -233,7 +235,7 @@ function showError(message) {
 
     if (errorMessage) {
         errorMessage.textContent =
-            message || "Failed to load weather.";
+            message || "Something went wrong. Please try again.";
     }
 }
 
