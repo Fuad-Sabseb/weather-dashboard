@@ -26,6 +26,7 @@
   "homepage": "https://github.com/Fuad-Sabseb/weather-dashboard#readme",
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.3",
-    "tailwindcss": "^4.3.3"
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2"
   }
 }
